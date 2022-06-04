@@ -29,7 +29,7 @@ class BabyController extends Controller
     //     ]);
     // }
 
-    function addData(Request $request){
+    function addData(Request $request){ 
         $parent_id = Auth::id();
         $baby= new Baby;
         $baby->name = $request->name;
