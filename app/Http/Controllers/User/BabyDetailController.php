@@ -44,8 +44,14 @@ class BabyDetailController extends Controller
 
     function retrieveData($id){
         // echo $id;
-        $data = Baby::find($id);
-        return view('dashboards.users.baby',['data'=>$data]);
+        $data = Report::find($id);
+        return view('users.babyDetail.baby',['data'=>$data]);
+dd($data);
+            // echo $id;
+            $data = Baby::find($id);
+            // $data = "aa"
+            return view('user.baby',['data'=>$data]);
+    
 
         // $baby= new Baby;
         // $baby->name = $request->name;

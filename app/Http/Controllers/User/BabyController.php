@@ -10,6 +10,7 @@ use App\Models\AdminBabyDataTransform;
 use App\Models\AdminBabyRule;
 use App\Models\AdminRule;
 use App\Models\AdminBaby;
+use App\Models\Report;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -32,6 +33,15 @@ class BabyController extends Controller
     // }
 
     function addData(Request $request){
+
+        $request->validate([
+            'name' => ['required', 'string'],
+            'age' =>['required', 'numeric'],
+            'length'=>['required', 'numeric'],
+            'weight'=>['required', 'numeric'],
+            'gender'=>['required', 'string'],
+        ]);
+
         $parent_id = Auth::id();
         $baby= new Baby;
         $baby->name = $request->name;
@@ -210,7 +220,6 @@ class BabyController extends Controller
             $x += $d->weight;
             $y += $d->weight * $d->weight;
             $sigma += ($d->weight - $meanBBBaik)*($d->weight - $meanBBBaik);
-
         }
         $stdevBBBaik = sqrt($sigma / (count($dataBaik)-1));
         ///Lebih
@@ -325,101 +334,106 @@ class BabyController extends Controller
         $baby->status = $LabelProbabilty;
         
         if($baby->save()){
-            // $babyTransform = new BabyUserDataTransform;
-            // $adminBabyTransform = AdminBabyDataTransform::all();
-   
-            // foreach ($adminBabyTransform as $data) { 
-            //     dd($data);
-            //     //transform_maxstatus_maxweight
-            //     if($data->status ){
-            //         array_push($transform_maxstatus_maxweight, $data->id );
-            //         // echo("hei:"+$data->id);
-            //         echo "hgfdsa";
-            //     }
-            //     //transform_maxstatus_maxweight
-            //     else if($data->status == $status_transform_max && $data->age == $age_transform_min ){
-            //         array_push($transform_maxstatus_maxweight, $data->id );
-            //         echo($data->id);
-            //     }
-            //     //transform_maxstatus_maxweight
-            //     else if($data->status == $status_transform_max && $data->age == $age_transform_min ){
-            //         array_push($transform_maxstatus_maxweight, $data->id );
-            //         echo($data->id);
-            //     }
-            // }
-
-
-            return redirect()->back()->with('success','You are now successfully registered');
+            return redirect()->back()->with('success','Data anak berhasil ditambahkan');
         }else{
-            return redirect()->back()->with('error','Failed to register');
+            return redirect()->back()->with('error','Terdapat data yang salah');
         }
     }
 
     function retrieveData($id){
         // echo $id;
-        $data = Baby::find($id);
-        return view('dashboards.users.baby',['data'=>$data]);
+        // $data = Baby::find($id);
+        $data = Report::where('baby_id', '=', $id)->orderBy('id','DESC')->first();
+        // dd($data);
+       
+        if($data!=null){
+            $allBabyReport = Report::where('baby_id', '=', $id)->get();
+            $data3 = [];
+            foreach($allBabyReport as $b){
+                array_push($data3, $b->age);
+            }
+            $dataWeight = [];
+            foreach($allBabyReport as $b){
+                array_push($dataWeight, $b->weight);
+            }
+            $dataLength = [];
+            foreach($allBabyReport as $b){
+                array_push($dataLength, $b->length);
+            }
 
-        // $baby= new Baby;
-        // $baby->name = $request->name;
-        // $baby->parent = 1;
-        // $baby->age = $request->age;
-        // $baby->length = $request->length;
-        // $baby->weight = $request->weight;
-        // $baby->gender = $request->gender;
-        // // dd($request);
+            $baik = Report::where('baby_id', '=', $id)->where('status', '=', 'Baik')->count();
+            $kurang = Report::where('baby_id', '=', $id)->where('status', '=', 'Kurang')->count();
+            $lebih = Report::where('baby_id', '=', $id)->where('status', '=', 'Lebih')->count();
+            $report_total_peranak = Report::where('baby_id', '=', $id)->orderBy('report_monthly','DESC')->first();
+            
+            $data2 = array( 'baik' => $baik, 
+                            'kurang' => $kurang, 
+                            'lebih'  => $lebih,
+                            'report_total_peranak' => $report_total_peranak->report_monthly
+                        );
+            return view('users.baby',['data'=>$data,'data2'=>$data2,'data3'=>$data3, 'dataWeight'=>$dataWeight,'dataLength'=>$dataLength]);
+        }else{
+            // $allBabyReport = Baby::where('baby_id', '=', $id)->get();
 
-        // if($baby->save()){
-        //     return redirect()->back()->with('success','You are now successfully registered');
-        // }else{
-        //     return redirect()->back()->with('error','Failed to register');
-        // }
+            $dataWeight = [];
+            $dataLength = [];
+            $data3 = [];
+
+            $babyData = Baby::where('id', '=', $id)->first();
+            array_push($dataWeight, $babyData->weight);
+            array_push($dataWeight, $babyData->weight);
+            array_push($dataLength, $babyData->length);
+            array_push($dataLength, $babyData->length);
+            array_push($data3, $babyData->age);
+
+
+            $data = Baby::find($id);
+            $kurang = Baby::where('id', '=', $id)->where('status', '=', 'Kurang')->count();
+            $baik = Baby::where('id', '=', $id)->where('status', '=', 'Baik')->count();
+            $lebih = Baby::where('id', '=', $id)->where('status', '=', 'Lebih')->count();
+            $report_total_peranak = 1;
+
+            $data2 = array( 'baik' => $baik, 
+                            'kurang' => $kurang, 
+                            'lebih'  => $lebih,
+                            'report_total_peranak' => $report_total_peranak
+                        );
+                        
+            return view('users.baby',['data'=>$data,'data2'=>$data2,'data3'=>$data3,'dataWeight'=>$dataWeight,'dataLength'=>$dataLength]);
+        }
+      
     }
 
-    function aaa(Request $request){
-        // $request->validate([
-        //     // 'parent'=> ['required', 'string', 'max:255','email','unique:users'],
-        //     'name' => ['required', 'string'],
-        //     // 'parent' => '1',
-        //     'age' =>['required', 'string'],
-        //     'length'=>['required', 'string'],
-        //     'weight'=>['required', 'string'],
-        //     'gender'=>['required', 'string'],
-        //     // 'status'=>['required', 'string'],
-        // ]);
-
-        $baby = new Baby();
-        $baby->name = 'ahmad';
-        // $baby->parent = $request->parent;
-        $baby->parent = 1;
-        $baby->age = 2;
-        $baby->length = 20;
-        $baby->weight = 30;
-        $baby->gender = 'Laki-laki';
-        $baby->save();
-        // if($baby->save()){
-        //     return redirect()->back()->with('success','You are now successfully registered');
-        // }else{
-        //     return redirect()->back()->with('error','Failed to register');
-        // }
-
-        $query = DB::table('baby')->insert([
-            $baby->name = 'ahmad',
-            // $baby->parent = $request->parent,
-            $baby->parent = 1,
-            $baby->age = 2,
-            $baby->length = 20,
-            $baby->weight = 30,
-            $baby->gender = 'Laki-laki',
-        ]);
-
-        if($query){
-            return redirect()->back()->with('success','You are now successfully registered');
+    function editbaby(Request $request){
+        $this->validate($request, [
+                'name'     => 'required',
+            ]);
             
+            $baby = Baby::find($request->id);
+            $report = Report::where('baby_id','=',$request->id)->get();
+            $baby->name = $request->name;
+            foreach ($report as $report){
+                $report->name = $request->name;
+            }
+            $baby->save();
+            
+        if($report->save()){
+            return redirect()->back()->with('success','Data anak berhasil diedit');
         }else{
+            return redirect()->back()->with('error','Terdapat yang salah');
+        }
 
-            return redirect()->back()->with('error','Failed to register');
-
+    }
+    function deleteBaby(Request $request){
+            $baby = Baby::find($request->id);
+            $report = Report::where('baby_id','=',$request->id)->get();
+            // dd($request->id);
+        if($baby->delete()){
+            $id = Auth::id();
+            $data = Baby::all()->where('parent',$id);
+            return view('users.babyDetail',['data'=>$data])->with('success','Data anak berhasil dihapus');
+        }else{
+            return redirect()->back()->with('error','Terdapat yang salah');
         }
 
     }
