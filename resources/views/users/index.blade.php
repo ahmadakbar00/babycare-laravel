@@ -166,7 +166,7 @@
             </div>
             <div class="icon">
               <i class="ion ion-bag"></i>
-            </div>
+            </div> 
             <a href="{{url('/user/babyDetail/baby/'.$baby->id)}}" class="small-box-footer">Detail Anak  <i class="fas fa-arrow-circle-right"></i></a>
           </div>    
          @elseif($baby->status == 'Kurang')
