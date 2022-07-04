@@ -46,7 +46,6 @@ class BabyDetailController extends Controller
         // echo $id;
         $data = Report::find($id);
         return view('users.babyDetail.baby',['data'=>$data]);
-dd($data);
             // echo $id;
             $data = Baby::find($id);
             // $data = "aa"

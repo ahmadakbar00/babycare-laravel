@@ -298,16 +298,40 @@ class BabyController extends Controller
         //P(TB|Lebih)
         $probTBLebih = (1/sqrt(2 * 3.14  * $stdevTBLebih)) * (exp(-( pow( $length - $meanTBLebih ,2) / (2 * pow($stdevTBLebih,2)))));
 
+        //PERHITUNGAN DISKRIT
+        $jmlLakilakiKurang = AdminBaby::get()->where('gender','Laki-laki')->where('status','Kurang')->count();
+        $jmlLakilakiBaik = AdminBaby::get()->where('gender','Laki-laki')->where('status','Baik')->count();
+        $jmlLakilakiLebih = AdminBaby::get()->where('gender','Laki-laki')->where('status','Lebih')->count();
+
+        $jmlPerempuanKurang = AdminBaby::get()->where('gender','Perempuan')->where('status','Kurang')->count();
+        $jmlPerempuanBaik = AdminBaby::get()->where('gender','Perempuan')->where('status','Baik')->count();
+        $jmlPerempuanLebih = AdminBaby::get()->where('gender','Perempuan')->where('status','Lebih')->count();
+
+        $jmlKurang = AdminBaby::get()->where('status','Kurang')->count();
+        $jmlBaik = AdminBaby::get()->where('status','Baik')->count();
+        $jmlLebih = AdminBaby::get()->where('status','Lebih')->count();
+
+        if($request->gender == 'Laki-laki'){
+            $probGenderKurang = $jmlLakilakiKurang / $jmlKurang;
+            $probGenderBaik = $jmlLakilakiBaik / $jmlBaik;
+            $probGenderLebih = $jmlLakilakiLebih / $jmlLebih;
+        }        
+        
+        if($request->gender == 'Perempuan'){
+            $probGenderKurang = $jmlPerempuanKurang / $jmlKurang;
+            $probGenderBaik = $jmlPerempuanBaik / $jmlBaik;
+            $probGenderLebih = $jmlPerempuanLebih / $jmlLebih;
+        }        
 
         //LIKELIHOOD
         ///Likelihood Kurang
-        $likelihoodKurang = $probUmurKurang * $probBBKurang * $probTBKurang;
+        $likelihoodKurang = $probUmurKurang * $probBBKurang * $probTBKurang * $probGenderKurang;
         
         ///Likelihood Baik
-        $likelihoodBaik = $probUmurBaik * $probBBBaik * $probTBBaik;
+        $likelihoodBaik = $probUmurBaik * $probBBBaik * $probTBBaik * $probGenderBaik;
         
         ///Likelihood Lebih
-        $likelihoodLebih = $probUmurLebih * $probBBLebih * $probTBLebih;
+        $likelihoodLebih = $probUmurLebih * $probBBLebih * $probTBLebih * $probGenderLebih;
 
         //KALLIKAN PROBABILITAS
         $probabilitasKurang = $likelihoodKurang * $probabilitasKelasKurang;
@@ -333,7 +357,43 @@ class BabyController extends Controller
         ///MASUKAN HASIL NAIVE BAYES KEDATABASE
         $baby->status = $LabelProbabilty;
         
+        
+        
         if($baby->save()){
+            $idUser = $baby->id;
+            $idParent =$parent_id;;
+            
+            $report_monthly = 0;
+            $report_monthly_total = 0;
+            
+            $get_report_monthly_total =Report::where('parent_id', '=', $idParent)->orderBy('id','DESC')->first();
+    
+            if($get_report_monthly_total != null){
+                $report_monthly_total = $get_report_monthly_total->report_monthly_total + 1; //aslinya get count data yang ada
+            }else{
+                $report_monthly_total = 1;
+            }
+    
+            
+            $report= new Report;
+            $report->name = $request->name;
+            $report->baby_id = $baby->id;
+            $report->parent_id = $parent_id;
+            $report->report_monthly =1; 
+            $report->report_monthly_total = $report_monthly_total;
+            $report->age = $request->age;
+            $report->length = $request->length;
+            $report->weight = $request->weight;
+            $report->gender = $request->gender;
+            $report->status = $LabelProbabilty;
+
+        
+            
+            $report->prob_baik = $probabilitasBaik;
+            $report->prob_kurang = $probabilitasKurang;
+            $report->prob_lebih = $probabilitasLebih;
+            $report->save();
+
             return redirect()->back()->with('success','Data anak berhasil ditambahkan');
         }else{
             return redirect()->back()->with('error','Terdapat data yang salah');
@@ -341,12 +401,11 @@ class BabyController extends Controller
     }
 
     function retrieveData($id){
-        // echo $id;
-        // $data = Baby::find($id);
+        $dataBaby = Baby::find($id);
         $data = Report::where('baby_id', '=', $id)->orderBy('id','DESC')->first();
         // dd($data);
        
-        if($data!=null){
+        // if($data!=null){
             $allBabyReport = Report::where('baby_id', '=', $id)->get();
             $data3 = [];
             foreach($allBabyReport as $b){
@@ -371,36 +430,37 @@ class BabyController extends Controller
                             'lebih'  => $lebih,
                             'report_total_peranak' => $report_total_peranak->report_monthly
                         );
-            return view('users.baby',['data'=>$data,'data2'=>$data2,'data3'=>$data3, 'dataWeight'=>$dataWeight,'dataLength'=>$dataLength]);
-        }else{
-            // $allBabyReport = Baby::where('baby_id', '=', $id)->get();
+            return view('users.baby',['dataBaby' => $dataBaby ,'data'=>$data,'data2'=>$data2,'data3'=>$data3, 'dataWeight'=>$dataWeight,'dataLength'=>$dataLength]);
+        // }else{
+        //     // $allBabyReport = Baby::where('baby_id', '=', $id)->get();
 
-            $dataWeight = [];
-            $dataLength = [];
-            $data3 = [];
+        //     $dataWeight = [];
+        //     $dataLength = [];
+        //     $data3 = [];
 
-            $babyData = Baby::where('id', '=', $id)->first();
-            array_push($dataWeight, $babyData->weight);
-            array_push($dataWeight, $babyData->weight);
-            array_push($dataLength, $babyData->length);
-            array_push($dataLength, $babyData->length);
-            array_push($data3, $babyData->age);
+        //     $babyData = Baby::where('id', '=', $id)->first();
+        //     array_push($dataWeight, $babyData->weight);
+        //     array_push($dataWeight, $babyData->weight);
+        //     array_push($dataLength, $babyData->length);
+        //     array_push($dataLength, $babyData->length);
+        //     array_push($data3, $babyData->age);
 
 
-            $data = Baby::find($id);
-            $kurang = Baby::where('id', '=', $id)->where('status', '=', 'Kurang')->count();
-            $baik = Baby::where('id', '=', $id)->where('status', '=', 'Baik')->count();
-            $lebih = Baby::where('id', '=', $id)->where('status', '=', 'Lebih')->count();
-            $report_total_peranak = 1;
+        //     $data = Baby::find($id);
+        //     $kurang = Baby::where('id', '=', $id)->where('status', '=', 'Kurang')->count();
+        //     $baik = Baby::where('id', '=', $id)->where('status', '=', 'Baik')->count();
+        //     $lebih = Baby::where('id', '=', $id)->where('status', '=', 'Lebih')->count();
+        //     $report_total_peranak = 1;
 
-            $data2 = array( 'baik' => $baik, 
-                            'kurang' => $kurang, 
-                            'lebih'  => $lebih,
-                            'report_total_peranak' => $report_total_peranak
-                        );
+        //     $data2 = array( 'baik' => $baik, 
+        //                     'kurang' => $kurang, 
+        //                     'lebih'  => $lebih,
+        //                     'report_total_peranak' => $report_total_peranak
+        //                 );
                         
-            return view('users.baby',['data'=>$data,'data2'=>$data2,'data3'=>$data3,'dataWeight'=>$dataWeight,'dataLength'=>$dataLength]);
-        }
+                        
+        //     return view('users.baby',['dataBaby' => $dataBaby,'data'=>$data,'data2'=>$data2,'data3'=>$data3,'dataWeight'=>$dataWeight,'dataLength'=>$dataLength]);
+        // }
       
     }
 

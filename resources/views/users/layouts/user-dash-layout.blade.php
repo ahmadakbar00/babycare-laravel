@@ -67,10 +67,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <i class="far fa-user nav-icon text-white text-lg"></i>
+          <i class="nav-icon far fa-user text-white text-lg"></i>
         </div>
         <div class="info">
-          <a href="#" class="d-block">{{Auth::user()->name}}</a>
+          <a href="#" class="d-block" style="margin-top:-5px;">{{Auth::user()->name}}</a>
         </div>
       </div>
 

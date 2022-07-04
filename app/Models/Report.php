@@ -18,6 +18,11 @@ class Report extends Model
         'age',
         'weight',
         'length',
+        'gender',
+        'status',
+        'pron_baik',
+        'prob_kurang',
+        'prob_lebih',
         'created_at',
         'updated_at',
     ];

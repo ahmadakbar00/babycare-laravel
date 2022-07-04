@@ -74,7 +74,7 @@
           @csrf
             <div class="card-body">
               <div class="form-group">
-                <h4>Apakah anda yakin ingin menghapus data anak anda "{{$dataUser->id}}"?</h4>
+                <h4>Apakah anda yakin ingin menghapus user  "{{$dataUser->name}}"?</h4>
             <div class="card-footer bg-white d-flex justify-content-center">
               <button type="" href="submit" class="btn px-5 mx-2 btn-danger">Ya</button>
               <a type="" class="btn px-5 mx-2 btn-warning" data-dismiss="modal" aria-label="Close">Tidak</a>

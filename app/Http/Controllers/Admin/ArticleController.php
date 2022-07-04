@@ -22,13 +22,15 @@ class ArticleController extends Controller
     }
     function addArticle(Request $request){
         // dd($request);
+        $id = Auth::id();
         $baby= new Articles;
         $baby->title = $request->title;
+        $baby->user_id = $id;
         $baby->content = $request->content;
         $baby->category = $request->status;
 
         if($baby->save()){
-            return redirect()->back()->with('success','You are now successfully registered');
+            return redirect()->back()->with('success','Artikel Berhasil Ditambahkan');
         }else{
             return redirect()->back()->with('error','Failed to register');
         }

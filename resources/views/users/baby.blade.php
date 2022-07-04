@@ -122,7 +122,7 @@
       </div>
     </div>
 
-    <div class="row">
+    <div class="row text-justify">
       <div class="col-6">
 @if($data->status=="Baik")
         <div class="card card-primary">
@@ -130,7 +130,7 @@
             <h3 class="card-title">Status Gizi Anak Anda {{$data->status}}</h3>
           </div>
           <div class="card-body">
-            <h5>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit, iste dolorem ad expedita deserunt voluptatem adipisci cum quibusdam. Provident laudantium itaque veritatis consequatur sint beatae placeat distinctio perferendis excepturi natus.</h5>
+            <h5>Status gizi baik atau status gizi optimal terjadi bila tubuh memperoleh cukup zat-zat gizi yang digunakan secara efisien sehingga memugkinkan pertumbuhan fisik, perkembanganotak, kemampuan kerja dan kesehatan secara umum pada tingkat setinggi.</h5>
           </div>
         </div>
         <div class="card card-primary">
@@ -138,7 +138,7 @@
             <h3 class="card-title">Rekomendasi</h3>
           </div>
           <div class="card-body">
-            <h5>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit, iste dolorem ad expedita deserunt voluptatem adipisci cum quibusdam. Provident laudantium itaque veritatis consequatur sint beatae placeat distinctio perferendis excepturi natus.</h5>
+            <h5> Status Gizi Anak anda sudah baik, berilak asupan gizi yang seimbang. Untuk usia 0-6 bulan anak diberi ASI eksklusif tanpa ditambah cairan apapaun. Setelah 6 bulan kebutuhan ASI meningkat dan harus diberi makanan lain. Sampai usia 2 tahun merupakan masa kritis dan termasuk dalam periode window of opportunity </h5>
           </div>
         </div>
 @elseif($data->status=="Kurang")
@@ -148,7 +148,7 @@
           </div>
           <div class="card-body">
             <h5>
-             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Suscipit ab impedit accusamus ducimus ex laborum molestiae aliquam odit quasi dolore maiores nemo dolorum ipsa quos eligendi, fuga corrupti quae. Laboriosam?
+            Status gizi kurang terjadi karena tubuh kekurangan satu atau lebih zat-zat esensial yang diperlukan.
             </h5>
           </div>
         </div>
@@ -166,7 +166,7 @@
             <h3 class="card-title">Status Gizi Anak Anda {{$data->status}}</h3>
           </div>
           <div class="card-body">
-            <h5>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit, iste dolorem ad expedita deserunt voluptatem adipisci cum quibusdam. Provident laudantium itaque veritatis consequatur sint beatae placeat distinctio perferendis excepturi natus.</h5>
+            <h5>Gizi lebih terjadi bila tubuh memperoleh zat-zat gizi dalam jumlah berlebihan sehingga menimbulkan efek toksis atau membahayakan. Kelebihan berat badan pada balita terjadi karena ketidak mampuan antara energi yang masuk dengan keluar, terlalu banyak makan, terlalu sedikit olahraga atau keduanya. Kelebihan berat badan anak tidak boleh diturunkan, karena penyusutan berat badan sekaligus menghilangkan zat gizi yang diperlukan untuk pertumbuhan.</h5>
           </div>
         </div>
         <div class="card card-warning">
@@ -174,7 +174,7 @@
             <h3 class="card-title">Rekomendasi</h3>
           </div>
           <div class="card-body">
-            <h5>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit, iste dolorem ad expedita deserunt voluptatem adipisci cum quibusdam. Provident laudantium itaque veritatis consequatur sint beatae placeat distinctio perferendis excepturi natus.</h5>
+            <h5>Status gizi anak anda lebih, atur kembali waktu dan pola makan anak anda sehingga gizi menjadi lebih seimbang. Tetap konsultasikan kepada pihak medis untuk mendapatkan konsultasi lanjutan.</h5>
           </div>
         </div>
 @endif
@@ -217,7 +217,7 @@
       </div>
     </div>
     </div>
-    <div class="row">
+    <!-- <div class="row">
     <div class="col">
       <div class="card card-success card-outline">
         <div class="card-header">
@@ -228,7 +228,7 @@
         </div> 
       </div>
     </div>
-    </div>
+    </div> -->
     <div class="row">
     <div class="col">
       <div class="card card-success card-outline">
@@ -249,7 +249,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="antropometriModalLabel">Modal title</h5>
+            <h5 class="modal-title" id="antropometriModalLabel">Tambahkan Laporan Bulanan</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
             </button>
@@ -276,10 +276,9 @@
                     <input name="weight" type="number" step="0.01" class="form-control" id="exampleInputEmail1" placeholder="Masukan Berat Bayi">
                   </div>
                   </div>
-                  <input name="id" value="{{$data->baby_id ?? 0}}" hidden>
                   <input name="name" value="{{$data->name ?? 0}}" hidden>
                   <input name="gender" value="{{$data->gender ?? 0}}" hidden>
-                  <input name="baby_id" value="{{$data->baby_id ?? 0}}" hidden>
+                  <input name="baby_id" value="{{$dataBaby->id ?? 0}}" hidden>
                 </div>
                 <!-- /.card-body -->
                 <div class="card-footer">

@@ -25,7 +25,7 @@
                     @enderror
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Umur</label>
+                    <label for="exampleInputEmail1">Umur (Bulan)</label>
                     <select name="age" type="number" class="form-control" id="exampleInputEmail1" placeholder="Masukan Umur Bayi (Bulan)">
                         @for($i=1;$i<61;$i++)
                           <option value="{{$i}}">{{$i}}</option>
@@ -33,7 +33,7 @@
                     </select>
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Panjang</label>
+                    <label for="exampleInputEmail1">Panjang (Cm)</label>
                     <input name="length" type="number" step="0.01"  class="form-control  @error('length') is-invalid @enderror" id="exampleInputEmail1" placeholder="Masukan Panjang Bayi" value="{{ old('length') }}" required autocomplete="length" autofocus>
                     @error('length')
                         <span class="invalid-feedback" role="alert">
@@ -42,7 +42,7 @@
                     @enderror
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputEmail1">Berat</label>
+                    <label for="exampleInputEmail1">Berat (Kg)</label>
                     <input name="weight"type="number" step="0.01"  class="form-control  @error('weight') is-invalid @enderror" id="exampleInputEmail1" placeholder="Masukan Berat Bayi" value="{{ old('weight') }}" required autocomplete="weight" autofocus>
                     @error('weight')
                         <span class="invalid-feedback" role="alert">

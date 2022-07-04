@@ -27,6 +27,7 @@
   </thead>
   <tbody class="text-center" >
     @foreach ($data as $data)
+    
     <tr>
       <th scope="row">{{ $loop->iteration }}</th>
       <td>{{$data->name}}</td>
@@ -37,10 +38,12 @@
       <td>User</td>
       @endif
       <td>{{$data->updated_at}}</td>
-      <td> 
+      @if($data->role != 1)
+      <td>   
         <a href="{{url('admin/users/edit-data-user/'.$data->id)}}" class="btn btn-warning">Edit</a> 
-        <a href="" class="btn btn-danger">Hapus</a>
+        <!-- <a href="" class="btn btn-danger">Hapus</a> -->
       </td>
+      @endif
     </tr>
     @endforeach
   </tbody>

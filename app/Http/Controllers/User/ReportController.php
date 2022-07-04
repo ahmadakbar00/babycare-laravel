@@ -18,7 +18,7 @@ class ReportController extends Controller
 {
 
     
-    function nutritionCalc($age, $weight, $length){
+    function nutritionCalc($age, $weight, $length, $gender){
         $dataTraining = new AdminBaby;
         $data = AdminBaby::all();
 
@@ -254,20 +254,45 @@ class ReportController extends Controller
         $probTBLebih = (1/sqrt(2 * 3.14  * $stdevTBLebih)) * (exp(-( pow( $length - $meanTBLebih ,2) / (2 * pow($stdevTBLebih,2)))));
 
 
-        //LIKELIHOOD
-        ///Likelihood Kurang
-        $likelihoodKurang = $probUmurKurang * $probBBKurang * $probTBKurang;
-        
-        ///Likelihood Baik
-        $likelihoodBaik = $probUmurBaik * $probBBBaik * $probTBBaik;
-        
-        ///Likelihood Lebih
-        $likelihoodLebih = $probUmurLebih * $probBBLebih * $probTBLebih;
-
-        //KALLIKAN PROBABILITAS
-        $probabilitasKurang = $likelihoodKurang * $probabilitasKelasKurang;
-        $probabilitasBaik = $likelihoodBaik * $probabilitasKelasBaik;
-        $probabilitasLebih = $likelihoodLebih * $probabilitasKelasLebih;
+         //PERHITUNGAN DISKRIT
+         $jmlLakilakiKurang = AdminBaby::get()->where('gender','Laki-laki')->where('status','Kurang')->count();
+         $jmlLakilakiBaik = AdminBaby::get()->where('gender','Laki-laki')->where('status','Baik')->count();
+         $jmlLakilakiLebih = AdminBaby::get()->where('gender','Laki-laki')->where('status','Lebih')->count();
+ 
+         $jmlPerempuanKurang = AdminBaby::get()->where('gender','Perempuan')->where('status','Kurang')->count();
+         $jmlPerempuanBaik = AdminBaby::get()->where('gender','Perempuan')->where('status','Baik')->count();
+         $jmlPerempuanLebih = AdminBaby::get()->where('gender','Perempuan')->where('status','Lebih')->count();
+ 
+         $jmlKurang = AdminBaby::get()->where('status','Kurang')->count();
+         $jmlBaik = AdminBaby::get()->where('status','Baik')->count();
+         $jmlLebih = AdminBaby::get()->where('status','Lebih')->count();
+ 
+         if($gender == 'Laki-laki'){
+             $probGenderKurang = $jmlLakilakiKurang / $jmlKurang;
+             $probGenderBaik = $jmlLakilakiBaik / $jmlBaik;
+             $probGenderLebih = $jmlLakilakiLebih / $jmlLebih;
+         }        
+         
+         if($gender == 'Perempuan'){
+             $probGenderKurang = $jmlPerempuanKurang / $jmlKurang;
+             $probGenderBaik = $jmlPerempuanBaik / $jmlBaik;
+             $probGenderLebih = $jmlPerempuanLebih / $jmlLebih;
+         }        
+ 
+         //LIKELIHOOD
+         ///Likelihood Kurang
+         $likelihoodKurang = $probUmurKurang * $probBBKurang * $probTBKurang * $probGenderKurang;
+         
+         ///Likelihood Baik
+         $likelihoodBaik = $probUmurBaik * $probBBBaik * $probTBBaik * $probGenderBaik;
+         
+         ///Likelihood Lebih
+         $likelihoodLebih = $probUmurLebih * $probBBLebih * $probTBLebih * $probGenderLebih;
+ 
+         //KALLIKAN PROBABILITAS
+         $probabilitasKurang = $likelihoodKurang * $probabilitasKelasKurang;
+         $probabilitasBaik = $likelihoodBaik * $probabilitasKelasBaik;
+         $probabilitasLebih = $likelihoodLebih * $probabilitasKelasLebih;
         
         //HASIL STATUS GIZI
         $highestProbability = 0;
@@ -283,65 +308,64 @@ class ReportController extends Controller
             $LabelProbabilty = "Lebih";
         }
 
+
         // dd($probabilitasKurang, $probabilitasBaik, $probabilitasLebih);
 
         ///MASUKAN HASIL NAIVE BAYES KEDATABASE
-        return $LabelProbabilty;
+        
+        return ['status'=>$LabelProbabilty, 'probBaik'=>$probabilitasBaik, 'probKurang'=>$probabilitasKurang,'probLebih'=>$probabilitasLebih];
     }
 
     function addData(Request $request){
 
         $idUser = Auth::user();
         $idParent = Auth::id();
+        
         $report_monthly = 0;
         $report_monthly_total = 0;
-
-        $get_report_monthly = Report::where('baby_id', '=', $request->id)->count();
-        $get_report_monthly_total = Report::all()->count();
         
-        // $data1 = Report::select('report_monthly','surname')->where('baby_id',$request->id);
-        // $data3 = Report::wherebaby_id($request->id);
-        // $data6 = Report::find($request->id);
-        // dd($data1, $data3, $data4, $data6);
-        // dd($data1, $data3, $data4, $data6);
+        
+        $get_report_monthly =Report::where('baby_id', '=', $request->baby_id)->orderBy('id','DESC')->first();
+        $get_report_monthly_total =Report::where('parent_id', '=', $idParent)->orderBy('id','DESC')->first();
 
-        $report_table = Report::find($request->id);
-        if($get_report_monthly!=null){
-            $report_monthly = $get_report_monthly + 1;
-            $report_monthly_total = $get_report_monthly_total + 1; //aslinya get count data yang ada
-            // dd($report_monthly);
+        if($get_report_monthly != null ){
+            $report_monthly = $get_report_monthly->report_monthly + 1;
         }else{
-            $monthly_report = 1;
-            $monthly_report_total = 1;
-            $report_monthly_total = $get_report_monthly_total + 1;
+            $report_monthly = 1;
         }
-        // dd($report_monthly, $report_monthly_total);
-        
+        if($get_report_monthly_total != null){
+            $report_monthly_total = $get_report_monthly_total->report_monthly_total + 1; //aslinya get count data yang ada
+        }else{
+            $report_monthly_total = 1;
+        }
+
+        $bayes= $this->nutritionCalc($request->age, $request->weight, $request->length, $request->gender);
+
         $report= new Report;
         $report->name = $request->name;
-        $report->baby_id = $request->id;
-        // dd($request->id);
+        $report->baby_id = $request->baby_id;
         $report->parent_id = $idParent;
-        $report->report_monthly = $report_monthly; //get data model report
+        $report->report_monthly = $report_monthly;
         $report->report_monthly_total = $report_monthly_total;
         $report->age = $request->age;
         $report->length = $request->length;
         $report->weight = $request->weight;
         $report->gender = $request->gender;
-        $report->status = $this->nutritionCalc($request->age, $request->weight, $request->length);
+        $report->prob_baik = $bayes['probBaik'];
+        $report->prob_kurang = $bayes['probKurang'];
+        $report->prob_lebih = $bayes['probLebih']; 
+        $report->status = $bayes['status'];
 
-        $baby= Baby::find($request->baby_id);
-        $baby->name = $request->name;
-        $baby->parent = 1;
+        $baby = Baby::find($request->baby_id);
+        // dd($request->baby_id);
         $baby->age = $request->age;
         $baby->length = $request->length;
         $baby->weight = $request->weight;
-        $baby->gender = $request->gender;
-        $baby->status = $this->nutritionCalc($request->age, $request->weight, $request->length);
+        $baby->status = $bayes['status'];
         $baby->save();
 
         if($report->save()){
-            return redirect()->back()->with('success','You are now successfully registered');
+            return redirect()->back()->with('success','Data Laporan Bulanan Berhasil Ditambahkan');
         }else{
             return redirect()->back()->with('error','Failed to register');
         }
@@ -349,6 +373,7 @@ class ReportController extends Controller
 
     function retrieveData($id){
         $data = Baby::find($id);
+        // dd($data);
         return view('users.baby',['data'=>$data]);
 
     }

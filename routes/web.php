@@ -46,6 +46,13 @@ Route::group(['prefix'=>'admin', 'middleware'=>['isAdmin','auth','PreventBackHis
     Route::post('data-training/update-data-training',[AdminController::class,'updateDataTraining'])->name('admin.editData');
     Route::post('data-training/delete-data',[AdminController::class,'deleteDataTraining'])->name('admin.deleteData');
     
+    Route::get('data-testing',[AdminController::class,'dataTestingMenu'])->name('admin.data-testing');
+    // Route::get('addData',[AdminController::class,'addData'])->name('admin.addData');
+    // Route::post('data-training/add-data-training',[AdminController::class,'addDataTraining'])->name('admin.addData');
+    // Route::get('data-training/edit-data-training/{id}',[AdminController::class,'dataTraining']);
+    // Route::post('data-training/update-data-training',[AdminController::class,'updateDataTraining'])->name('admin.editData');
+    // Route::post('data-training/delete-data',[AdminController::class,'deleteDataTraining'])->name('admin.deleteData');
+    
     Route::get('users',[DataUserController::class,'index'])->name('admin.users');
     Route::get('users/edit-data-user/{id}',[AdminController::class,'dataUser']);
     Route::post('data-user/update-data-user',[AdminController::class,'updateDataUser'])->name('admin.editData');
